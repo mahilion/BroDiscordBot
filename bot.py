@@ -3,6 +3,7 @@ from discord.ext import commands
 from base_logger import logger
 from config import COMMAND_PREFIX
 from discord_slash import SlashCommand
+import os
 
 # List of cogs to load on bot startup
 BOT_STARTUP_COGS_LIST = ['cogs.events',
@@ -27,7 +28,7 @@ slash = SlashCommand(bot, sync_commands=True)
 
 if __name__ == '__main__':
     logger.debug("Bro Bot Startup...")
-    
+
     # load initial cogs
     for cog in BOT_STARTUP_COGS_LIST:
         try:
@@ -36,8 +37,15 @@ if __name__ == '__main__':
         except Exception as e:
             logger.exception("Failed to load extension {}. ERROR: {}".format(cog, e))
 
-    # read Bot Token from token file in keys folder
-    with open('keys/token') as f:
-        TOKEN = f.read()
+    is_heroku_prod = os.environ.get('IS_HEROKU', None)
+
+    if is_heroku_prod:
+        TOKEN = os.environ.get('TOKEN')
+    else:
+        # TODO :: if runing locally read the token from your tokens file.
+        # read Bot Token from token file in keys folder
+        #with open('keys/token') as f:
+        #    TOKEN = f.read()
+        pass
 
     bot.run(TOKEN, bot=True, reconnect=True)
